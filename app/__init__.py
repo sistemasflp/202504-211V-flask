@@ -1,11 +1,14 @@
 from flask import Flask
-from app.routes.post import post_bp
-from app.routes.comment import comments_bp
-from app.routes.base import base_bp
-from app.database import close_db_connection
+from app.routes import base_bp, post_bp, comments_bp, users_bp
+from app.utils.db import close_db_connection, get_db_connection
+from app.models.user import ensure_user_table
 
 def create_app():
     app = Flask(__name__)
+
+    with app.app_context():
+        get_db_connection()
+        ensure_user_table()
 
     app.teardown_appcontext(close_db_connection)
 
@@ -13,5 +16,6 @@ def create_app():
     app.register_blueprint(base_bp)
     app.register_blueprint(post_bp)
     app.register_blueprint(comments_bp)
+    app.register_blueprint(users_bp)
 
     return app
